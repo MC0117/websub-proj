@@ -32,8 +32,9 @@ func (s *Store) GetSubscribers() []Subscriber {
 
 	var result []Subscriber
 
-	for i := 0; i < len(s.subscribers); i++ {
-
+	for _, sub := range s.subscribers {
+		result = append(result, sub)
 	}
+	return result
 
 }
