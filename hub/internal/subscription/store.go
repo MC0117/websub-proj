@@ -2,7 +2,7 @@ package subscription
 
 import "sync"
 
-// storing this
+// struct for storing subscriber object
 type Subscriber struct {
 	CallbackURL string
 	Secret      string
@@ -21,15 +21,16 @@ func NewStore() *Store {
 }
 
 func (s *Store) Add(sub Subscriber) {
+	//locks for writing to prevent race condition on s.subscribers map
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.subscribers[sub.CallbackURL] = sub
 }
 
 func (s *Store) GetSubscribers() []Subscriber {
+	//read locks to prevent race condition on s.subscribers map
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-
 	var result []Subscriber
 
 	for _, sub := range s.subscribers {
