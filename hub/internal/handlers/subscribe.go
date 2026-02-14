@@ -18,7 +18,7 @@ func NewSubscriptionHandler(store *subscription.Store) *SubscriptionHandler {
 }
 
 // method that "serves" the endpoint
-func (h *SubscriptionHandler) ServeHTTP(rw http.ResponseWriter, r http.Request) {
+func (h *SubscriptionHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(rw, "HTTP method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -39,10 +39,14 @@ func (h *SubscriptionHandler) ServeHTTP(rw http.ResponseWriter, r http.Request) 
 
 	resp, err := http.Get(verifyURL)
 
-	defer r.Body.Close()
+	fmt.Printf("Verify URL: %s\n", verifyURL)
+	fmt.Printf("Response Status: %d\n", resp.StatusCode)
+
+	defer resp.Body.Close()
 
 	if err != nil {
 		http.Error(rw, "Validation of Subscription Failed", http.StatusNotFound)
+		return
 	}
 
 	if resp.StatusCode == http.StatusOK {
@@ -53,6 +57,6 @@ func (h *SubscriptionHandler) ServeHTTP(rw http.ResponseWriter, r http.Request) 
 		}
 		h.store.Add(newSub)
 		rw.WriteHeader(http.StatusAccepted)
-		fmt.Printf("Added subscriber: %s", callback)
+		fmt.Printf("Added subscriber: %s\n", callback)
 	}
 }

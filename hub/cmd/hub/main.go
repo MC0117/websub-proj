@@ -19,8 +19,8 @@ func main() {
 	http.Handle("/subscribe", subHandler)
 	http.Handle("/publish", pubHandler)
 
-	log.Println("Hub listening on :8000")
-	if err := http.ListenAndServe(":8000", nil); err != nil {
+	log.Println("Hub listening on :8080")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
 	}
 }

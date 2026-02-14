@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"hub/internal/delivery"
 	"hub/internal/subscription"
 	"io"
@@ -12,11 +13,12 @@ type PublishHandler struct {
 }
 
 func NewPublishHandler(s *subscription.Store) *PublishHandler {
-	return &PublishHandler{}
+	return &PublishHandler{store: s}
 }
 
 func (h *PublishHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
+	fmt.Printf("Message Body: %s\n", string(body))
 	if err != nil || len(body) == 0 {
 		http.Error(w, "invalid message body", http.StatusBadRequest)
 		return
@@ -28,5 +30,5 @@ func (h *PublishHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		//todo optimizable? maybe separate into two sections
 		go delivery.SendPayload(sub.CallbackURL, sub.Secret, body)
 	}
-
+	fmt.Printf("Message Sent to all Subscribers: %s\n", string(body))
 }
