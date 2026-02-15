@@ -1,16 +1,10 @@
 todo before handin
 
-bugs
-- subscribe handler accesses resp before checking err, will nil pointer panic if the GET fails
-- need to validate form fields arent empty before using them (callback, topic etc)
-- outbound.go ignores error from http.NewRequest, bad url = nil req = crash
-- remove the debug printfs before shipping lol
-
-improvements
+improvements if I could manage the client:
 - filter subscribers by topic when publishing, rn it just blasts to everyone
-- IMPORTANT: add timeout to http client in outbound, something like 10s so a dead subscriber doesnt hang forever
-- maybe use log instead of fmt.Printf everywhere, more consistent + timestamps
 - unsubscribe support (hub.mode=unsubscribe), add a Remove() to the store
+
+
 - could use context for outbound requests so they cancel if the original req drops
 
 nice to have 

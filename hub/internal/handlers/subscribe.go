@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"hub/internal/subscription"
+	"log"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -33,7 +34,7 @@ func (h *SubscriptionHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request)
 	topic := r.FormValue("hub.topic")
 	mode := r.FormValue("hub.mode")
 
-	if callback == "" || secret == "" || topic != "" || mode != "" {
+	if callback == "" || secret == "" || topic == "" || mode == "" {
 		http.Error(rw, "Bad Request", http.StatusBadRequest)
 		return
 	}
@@ -41,7 +42,7 @@ func (h *SubscriptionHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request)
 	challenge := strconv.Itoa(rand.Intn(1000000))
 	verifyURL := fmt.Sprintf("%s?hub.mode=%s&hub.topic=%s&hub.challenge=%s", callback, mode, topic, challenge)
 
-	fmt.Printf("Verify URL: %s\n", verifyURL)
+	log.Printf("Verify URL: %s", verifyURL)
 	resp, err := http.Get(verifyURL)
 
 	if err != nil {
@@ -49,7 +50,7 @@ func (h *SubscriptionHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	fmt.Printf("Response Status: %d\n", resp.StatusCode)
+	log.Printf("Response Status: %d", resp.StatusCode)
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
@@ -60,6 +61,6 @@ func (h *SubscriptionHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request)
 		}
 		h.store.Add(newSub)
 		rw.WriteHeader(http.StatusAccepted)
-		fmt.Printf("Added subscriber: %s\n", callback)
+		log.Printf("Added subscriber: %s", callback)
 	}
 }

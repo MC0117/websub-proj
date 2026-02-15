@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"fmt"
 	"hub/internal/delivery"
 	"hub/internal/subscription"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -18,7 +18,7 @@ func NewPublishHandler(s *subscription.Store) *PublishHandler {
 
 func (h *PublishHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
-	fmt.Printf("Message Body: %s\n", string(body))
+	log.Printf("Message Body: %s", string(body))
 	if err != nil || len(body) == 0 {
 		http.Error(w, "invalid message body", http.StatusBadRequest)
 		return
@@ -27,9 +27,11 @@ func (h *PublishHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	subscribers := h.store.GetSubscribers()
 
 	for _, sub := range subscribers {
-		//todo optimizable? maybe separate into two sections
-		// todo: this sends to everyone, should filter by topic
-		go delivery.SendPayload(sub.CallbackURL, sub.Secret, body)
+		go func(s subscription.Subscriber) {
+			if err := delivery.SendPayload(s.CallbackURL, s.Secret, body); err != nil {
+				log.Printf("Delivery Failed for %s: %v\n", s.CallbackURL, err)
+			}
+		}(sub)
 	}
-	fmt.Printf("Message Sent to all Subscribers: %s\n", string(body))
+	log.Printf("Message Sent to all Subscribers: %s", string(body))
 }
