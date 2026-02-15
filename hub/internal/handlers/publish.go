@@ -24,15 +24,20 @@ func (h *PublishHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	subscribers := h.store.GetSubscribers()
+	topic := r.URL.Query().Get("hub.topic")
+	if topic == "" {
+		http.Error(w, "missing hub.topic query parameter", http.StatusBadRequest)
+		return
+	}
+
+	subscribers := h.store.GetSubscribersByTopic(topic)
 
 	for _, sub := range subscribers {
 		go func(s subscription.Subscriber) {
-
 			if err := delivery.SendPayload(s.CallbackURL, s.Secret, body); err != nil {
 				log.Printf("Delivery Failed for %s: %v\n", s.CallbackURL, err)
 			}
 		}(sub)
 	}
-	log.Printf("Message Sent to all Subscribers: %s", string(body))
+	log.Printf("Published to %d subscriber(s) on topic %s", len(subscribers), topic)
 }

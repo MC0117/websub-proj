@@ -37,5 +37,17 @@ func (s *Store) GetSubscribers() []Subscriber {
 		result = append(result, sub)
 	}
 	return result
+}
 
+func (s *Store) GetSubscribersByTopic(topic string) []Subscriber {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	var result []Subscriber
+
+	for _, sub := range s.subscribers {
+		if sub.Topic == topic {
+			result = append(result, sub)
+		}
+	}
+	return result
 }
