@@ -18,10 +18,12 @@ func SendPayload(callbackURL, secret string, message []byte) error {
 	}
 	signature := "sha256=" + hex.EncodeToString(h.Sum(nil))
 
+	// todo: handle the error here, if url is malformed req will be nil and crash
 	req, _ := http.NewRequest(http.MethodPost, callbackURL, bytes.NewBuffer(message))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Hub-Signature", signature)
 
+	// todo: add a timeout here, slow subscriber could block forever
 	client := &http.Client{}
 	_, err = client.Do(req)
 	return err

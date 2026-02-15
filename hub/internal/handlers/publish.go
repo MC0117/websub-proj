@@ -28,6 +28,7 @@ func (h *PublishHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	for _, sub := range subscribers {
 		//todo optimizable? maybe separate into two sections
+		// todo: this sends to everyone, should filter by topic
 		go delivery.SendPayload(sub.CallbackURL, sub.Secret, body)
 	}
 	fmt.Printf("Message Sent to all Subscribers: %s\n", string(body))
