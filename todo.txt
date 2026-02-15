@@ -1,15 +1,18 @@
 todo before handin
 
-improvements if I could manage the client:
+improvements if I could manage the client (which I cant):
 - filter subscribers by topic when publishing, rn it just blasts to everyone
 - unsubscribe support (hub.mode=unsubscribe), add a Remove() to the store
 
+Things for the overengineered branch:
+- tests
+- rate limiting
+- maybe swap the map store for something persistent eventually, redis or sqlite idk
 
-- could use context for outbound requests so they cancel if the original req drops
 
 nice to have 
 - tests.. at least for the handlers, httptest would work
 - improve logging
 - graceful shutdown on sigterm
 - rate limiting on publish endpoint
-- maybe swap the map store for something persistent eventually, redis or sqlite idk
+

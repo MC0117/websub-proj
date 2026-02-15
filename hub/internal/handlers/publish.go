@@ -28,6 +28,7 @@ func (h *PublishHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	for _, sub := range subscribers {
 		go func(s subscription.Subscriber) {
+
 			if err := delivery.SendPayload(s.CallbackURL, s.Secret, body); err != nil {
 				log.Printf("Delivery Failed for %s: %v\n", s.CallbackURL, err)
 			}
