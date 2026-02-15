@@ -32,25 +32,25 @@ func (h *SubscriptionHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request)
 	secret := r.FormValue("hub.secret")
 	topic := r.FormValue("hub.topic")
 	mode := r.FormValue("hub.mode")
-	// todo: should probably validate these arent empty, return 400 if they are
+
+	if callback == "" || secret == "" || topic != "" || mode != "" {
+		http.Error(rw, "Bad Request", http.StatusBadRequest)
+		return
+	}
 
 	challenge := strconv.Itoa(rand.Intn(1000000))
-
 	verifyURL := fmt.Sprintf("%s?hub.mode=%s&hub.topic=%s&hub.challenge=%s", callback, mode, topic, challenge)
 
-	resp, err := http.Get(verifyURL)
-	// todo: need to check err before accessing resp, will panic if http.Get fails
-	// also move the defer resp.Body.Close() after the err check
-
 	fmt.Printf("Verify URL: %s\n", verifyURL)
-	fmt.Printf("Response Status: %d\n", resp.StatusCode)
-
-	defer resp.Body.Close()
+	resp, err := http.Get(verifyURL)
 
 	if err != nil {
 		http.Error(rw, "Validation of Subscription Failed", http.StatusNotFound)
 		return
 	}
+
+	fmt.Printf("Response Status: %d\n", resp.StatusCode)
+	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
 		newSub := subscription.Subscriber{
